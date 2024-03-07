@@ -1,9 +1,7 @@
 use std::str::Utf8Error;
 
 use aes::{
-    cipher::{
-        generic_array::GenericArray, inout::PadError, InvalidLength, KeyIvInit as _, StreamCipher,
-    },
+    cipher::{generic_array::GenericArray, InvalidLength, KeyIvInit as _, StreamCipher},
     Aes256,
 };
 use bincode::{
@@ -129,16 +127,12 @@ pub fn decrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, 
 
 #[derive(Debug, thiserror::Error)]
 pub enum DeEncryptError {
-    #[error("Failed to encrypt: {0}")]
-    CipherError(PadError),
     #[error("Failed to decode bytes into utf8: {0}")]
     Utf8Error(#[from] Utf8Error),
     #[error("Password hash error: {0}")]
     SaltError(pbkdf2::password_hash::Error),
     #[error("Data integrity failure")]
     IntegrityError,
-    #[error("Input data too small")]
-    DataTooSmall,
     #[error("{0}")]
     HmacInvalidLength(#[from] InvalidLength),
     #[error("Password must be non-zero length")]
@@ -151,12 +145,6 @@ pub enum DeEncryptError {
     IncorrectPassword,
     #[error("Integrity flag does not match the integrity of the underlying data")]
     IncorrectIntegrity,
-}
-
-impl From<PadError> for DeEncryptError {
-    fn from(value: PadError) -> Self {
-        Self::CipherError(value)
-    }
 }
 
 impl From<pbkdf2::password_hash::Error> for DeEncryptError {
@@ -186,7 +174,7 @@ mod tests {
     }
 
     #[test]
-    fn test_descrypt_integrity_broken() {
+    fn test_decrypt_integrity_broken() {
         let mut data = encrypt("123", &[1, 2, 3, 4], true).unwrap();
         data.pop();
         let data = decrypt("123", &data, true);

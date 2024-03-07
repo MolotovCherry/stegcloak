@@ -16,6 +16,7 @@ fn is_zwc(c: char) -> bool {
     ZWC.contains(&c)
 }
 
+/// Encode binary data to String using zwc characters
 pub fn encode(data: &[u8]) -> String {
     // 4 chars per byte
     let required_zwc = data.len() * BASE;
@@ -109,6 +110,10 @@ pub fn encode(data: &[u8]) -> String {
     result
 }
 
+/// Decode binary data that was previously encoded into a String using zwc characters
+///
+/// Note: String must have minimum 1 space, and zwc stream must be right after the space
+///       For example " {zwc_stream_here}"
 pub fn decode(string: &str) -> Result<Vec<u8>, CodecError> {
     let Some(mut pos) = string.find(' ') else {
         return Err(CodecError::ZwcDataNotfound);

@@ -8,6 +8,7 @@ use flate2::{
     Compression,
 };
 
+/// Compress a string using deflate
 pub fn compress(data: &str) -> Result<Vec<u8>, DeCompressError> {
     let mut encoder = DeflateEncoder::new(Vec::new(), Compression::best());
     encoder.write_all(data.as_bytes())?;
@@ -17,6 +18,7 @@ pub fn compress(data: &str) -> Result<Vec<u8>, DeCompressError> {
     Ok(data)
 }
 
+/// Decompress deflated stream back into string
 pub fn decompress(data: &[u8]) -> Result<String, DeCompressError> {
     let mut decoder = DeflateDecoder::new(Vec::new());
 

@@ -24,3 +24,4 @@ ctr = "0.9.2"
 itertools = "0.12.1"
 getrandom = { version = "0.2.12", features = ["js"], optional = true }
 aho-corasick = "1.1.2"
+bincode = "2.0.0-rc.3"

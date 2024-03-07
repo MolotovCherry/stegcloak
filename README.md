@@ -19,7 +19,7 @@ This is incompatible with the original js stegcloak. But it can compile to wasm 
 This is currently under dev. Algorithm may be changed at any time, and previously encoded
 messages may no longer be compatible with the new version.
 
-Every effort has been made to be cryptigraphically secure, however, this _should not_ be
+Every effort has been made to be cryptographically secure, however, this _should not_ be
 relied on for any sensitive or secure communications! Author absolves self from all possible
 issues that could arise from usage of this software.
 

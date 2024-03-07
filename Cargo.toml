@@ -1,6 +1,6 @@
 [package]
 name = "stegcloak"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 license = "MIT"
 description = "Hides secrets inside text by compressing and encrypting the secret before cloaking it with special unicode invisible characters"

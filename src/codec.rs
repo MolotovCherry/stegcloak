@@ -1,3 +1,4 @@
+use aho_corasick::AhoCorasick;
 use itertools::Itertools as _;
 
 const ZWC: &[char] = &[
@@ -18,8 +19,11 @@ fn is_zwc(c: char) -> bool {
 pub fn encode(data: &[u8]) -> String {
     // 4 chars per byte
     let required_zwc = data.len() * BASE;
-    let mut string_buffer = String::with_capacity(required_zwc);
-    let mut buffer = Vec::with_capacity(required_zwc);
+    let mut buffer = String::with_capacity(required_zwc);
+
+    // determine most common 2 characters in string
+    let mut counts = [0; BASE];
+
     // LE
     for &byte in data {
         for b in (0..=6).step_by(2) {
@@ -27,10 +31,22 @@ pub fn encode(data: &[u8]) -> String {
             let bit2 = (byte >> (b + 1)) & 0b1;
 
             let zwc_char = match (bit2, bit1) {
-                (0, 0) => ZWC[0],
-                (0, 1) => ZWC[1],
-                (1, 0) => ZWC[2],
-                (1, 1) => ZWC[3],
+                (0, 0) => {
+                    counts[0] += 1;
+                    ZWC[0]
+                }
+                (0, 1) => {
+                    counts[1] += 1;
+                    ZWC[1]
+                }
+                (1, 0) => {
+                    counts[2] += 1;
+                    ZWC[2]
+                }
+                (1, 1) => {
+                    counts[3] += 1;
+                    ZWC[3]
+                }
                 _ => unreachable!(),
             };
 
@@ -40,61 +56,60 @@ pub fn encode(data: &[u8]) -> String {
 
     // now it's encoded, but we can compress it a little further
 
-    // determine most common 2 characters in string
-    let mut counts = [0; BASE];
-    for &c in buffer.iter() {
-        match c {
-            _ if c == ZWC[0] => counts[0] += 1,
-            _ if c == ZWC[1] => counts[1] += 1,
-            _ if c == ZWC[2] => counts[2] += 1,
-            _ if c == ZWC[3] => counts[3] += 1,
-            _ => unreachable!(),
-        }
-    }
+    let table = &[
+        "\u{200c}\u{200c}",
+        "\u{200d}\u{200d}",
+        "\u{2061}\u{2061}",
+        "\u{2062}\u{2062}",
+    ];
+
+    let mut tmp1 = [0u8; 4];
+    let mut tmp2 = [0u8; 4];
+    let mut find = Vec::with_capacity(2);
+    let mut replace = Vec::with_capacity(2);
+    let mut chars = Vec::with_capacity(2);
 
     // first common
-    let mut working_buffer = String::from_iter(&buffer);
     if let Some(i) = counts.iter().position_max() {
-        string_buffer.push(ZWC[i]);
+        chars.push(ZWC[i]);
         // reset counter so we can get the next highest
         counts[i] = 0;
 
-        let zwc_char = ZWC[i];
+        let zwc_char = ZWC[BASE].encode_utf8(&mut tmp1);
 
-        let mut tmp = [0u8; 4];
-        let zwc_char_rep = ZWC[BASE].encode_utf8(&mut tmp);
-
-        working_buffer = working_buffer.replace(&format!("{zwc_char}{zwc_char}"), zwc_char_rep);
+        find.push(table[i]);
+        replace.push(zwc_char);
     } else {
         // use BASE + 1 as a sentinel since it's dynamic and unreplaceable
-        string_buffer.push(ZWC[BASE + 1]);
+        chars.push(ZWC[BASE + 1]);
     }
 
     // second common
     if let Some(i) = counts.iter().position_max() {
-        string_buffer.push(ZWC[i]);
+        chars.push(ZWC[i]);
+        // reset counter so we can get the next highest
         counts[i] = 0;
 
-        let zwc_char = ZWC[i];
+        let zwc_char = ZWC[BASE + 1].encode_utf8(&mut tmp2);
 
-        let mut tmp = [0u8; 4];
-        let zwc_char_rep = ZWC[BASE + 1].encode_utf8(&mut tmp);
-
-        working_buffer = working_buffer.replace(&format!("{zwc_char}{zwc_char}"), zwc_char_rep);
+        find.push(table[i]);
+        replace.push(zwc_char);
     } else {
         // use BASE + 1 as a sentinel since it's dynamic and unreplaceable
-        string_buffer.push(ZWC[BASE + 1]);
+        chars.push(ZWC[BASE + 1]);
     }
 
-    string_buffer.push_str(&working_buffer);
+    let ac = AhoCorasick::new(find).unwrap();
+    let mut result = ac.replace_all(&buffer, &replace);
 
-    string_buffer
+    for ch in chars.into_iter().rev() {
+        result.insert(0, ch);
+    }
+
+    result
 }
 
 pub fn decode(string: &str) -> Result<Vec<u8>, CodecError> {
-    //let data = Vec::with_capacity(string.len().div_ceil(4));
-    //let mut buffer = Vec::new();
-
     let Some(mut pos) = string.find(' ') else {
         return Err(CodecError::ZwcDataNotfound);
     };

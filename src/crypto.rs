@@ -25,6 +25,19 @@ struct Payload {
     data: Vec<u8>,
 }
 
+/// Check if stream was encrypted with integrity flag set
+///
+/// If stream is invalid, returns false
+pub fn check_integrity(data: &[u8]) -> bool {
+    let des = bincode::decode_from_slice::<Payload, _>(data, bincode::config::standard());
+
+    if let Ok((payload, _)) = des {
+        payload.integrity
+    } else {
+        false
+    }
+}
+
 /// Encrypt a binary stream
 ///
 /// Requirements:

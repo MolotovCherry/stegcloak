@@ -1,4 +1,4 @@
-//! StegCloak
+//! # StegCloak
 //!
 //! Hides secrets inside text by compressing and encrypting the secret before cloaking it
 //! with special unicode invisible characters. It can be used to safely watermark strings,
@@ -11,7 +11,6 @@
 //! `wasm` feature.
 //!
 //! # Features
-//! `wasm` - If you need wasm support, this feature's for you!
 //!
 //! - Allows you to invisibly hide your secret inside regular text
 //! - Protect your secret with password and HMAC integrity
@@ -20,6 +19,9 @@
 //! - Uses compression to minimize size of payload.
 //! - Wasm compatible
 //! - Fast🦀! Can hide the entire wikipedia source in ~201468 characters taking ~3.5ms in plaintext mode and ~7ms in encrypt mode
+//!
+//! # Cargo Features
+//! `wasm` - If you need wasm support, this feature's for you!
 //!
 //! # Warning
 //!

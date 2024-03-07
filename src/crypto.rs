@@ -80,6 +80,9 @@ pub fn encrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, 
 /// - password.len > 0
 /// - integrity option must match what the data stream was encoded in
 /// - data is unaltered
+///
+/// Note: It is possible in rare cases decrypted data might pass successfully (particularly when not using
+///       the integrity check). And in such a case the resulting returned data _may_ be corrupt.
 pub fn decrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, DeEncryptError> {
     if password.is_empty() {
         return Err(DeEncryptError::PasswordTooShort);

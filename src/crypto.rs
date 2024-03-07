@@ -15,6 +15,10 @@ type Aes256Ctr = ctr::Ctr128LE<Aes256>;
 type HmacSha256 = Hmac<Sha256>;
 
 pub fn encrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, DeEncryptError> {
+    if password.is_empty() {
+        return Err(DeEncryptError::PasswordTooShort);
+    }
+
     // 🧂🍳 22 salty bytes
     let salt = SaltString::generate(&mut OsRng);
 
@@ -104,6 +108,8 @@ pub enum DeEncryptError {
     DataTooSmall,
     #[error("{0}")]
     HmacInvalidLength(#[from] InvalidLength),
+    #[error("Password must be non-zero length")]
+    PasswordTooShort,
 }
 
 impl From<PadError> for DeEncryptError {
@@ -115,5 +121,40 @@ impl From<PadError> for DeEncryptError {
 impl From<pbkdf2::password_hash::Error> for DeEncryptError {
     fn from(value: pbkdf2::password_hash::Error) -> Self {
         Self::SaltError(value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_encrypt() {
+        let data = encrypt("123", &[1, 2, 3, 4], false).unwrap();
+        let data = decrypt("123", &data, false).unwrap();
+
+        assert_eq!(data, &[1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_encrypt_integrity() {
+        let data = encrypt("123", &[1, 2, 3, 4], true).unwrap();
+        let data = decrypt("123", &data, true).unwrap();
+
+        assert_eq!(data, &[1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_encrypt_integrity_broken() {
+        let mut data = encrypt("123", &[1, 2, 3, 4], true).unwrap();
+        data.pop();
+        let data = decrypt("123", &data, true);
+
+        assert!(data.is_err());
+    }
+
+    #[test]
+    fn test_encrypt_no_pass() {
+        assert!(encrypt("", &[1, 2, 3, 4], false).is_err());
     }
 }

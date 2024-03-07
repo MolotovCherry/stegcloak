@@ -7,7 +7,7 @@
 //!
 //! Inspired by the original javascript [stegcloak](https://github.com/KuroLabs/stegcloak).
 //!
-//! This is imcompatible with the original js stegcloak. However, this compiles to wasm, so it can
+//! This is incompatible with the original js stegcloak. However, this compiles to wasm, so it can
 //! also be used in javascript.
 //!
 //! # Warning

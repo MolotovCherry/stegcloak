@@ -1,6 +1,6 @@
 //! StegCloak
 //!
-//! Hides secrets inside test by compressing and encrypting the secret before cloaking it
+//! Hides secrets inside text by compressing and encrypting the secret before cloaking it
 //! with special unicode invisible characters. It can be used to safely watermark strings,
 //! invisible scripts on webpages, texts on social media, or for any other covert communication.
 //! Completely invisible!

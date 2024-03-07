@@ -165,10 +165,10 @@ pub fn decode(string: &str) -> Result<Vec<u8>, CodecError> {
 
         for (b, c) in (0..=6).step_by(2).zip([one, two, three, four]) {
             let bit_pattern = match c {
-                _ if c == ZWC[0] => 0b00u8,
-                _ if c == ZWC[1] => 0b01u8,
-                _ if c == ZWC[2] => 0b10u8,
-                _ if c == ZWC[3] => 0b11u8,
+                _ if c == ZWC[0] => 0b00,
+                _ if c == ZWC[1] => 0b01,
+                _ if c == ZWC[2] => 0b10,
+                _ if c == ZWC[3] => 0b11,
                 _ => unreachable!(),
             };
 

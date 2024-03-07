@@ -20,7 +20,9 @@ This is incompatible with the original js stegcloak. But it can compile to wasm 
 - Uses 6 invisible unicode characters that work in many places such as Gmail, WhatsApp, Telegram, Facebook, and more!
 - Uses compression to minimize size of payload.
 - Wasm compatible
-- Fast🦀! Can hide the entire wikipedia source in ~201468 characters taking ~3.5ms in plaintext mode and ~7ms in encrypt mode
+- Fast🦀!
+  - Can hide the entire wikipedia source in ~201468 characters taking ~3.5ms in plaintext mode and ~7ms in encrypt mode
+  - Can reveal the entire wikipedia source in ~1.3ms in plaintext mode and ~5ms in encrypted mode
 
 # Cargo Features
 

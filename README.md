@@ -7,8 +7,12 @@ Completely invisible!
 
 Inspired by the original javascript [stegcloak](https://github.com/KuroLabs/stegcloak).
 
-This is incompatible with the original js stegcloak. However, this compiles to wasm, so it can
-also be used in javascript.
+This is incompatible with the original js stegcloak. But it can compile to wasm with the
+`wasm` feature.
+
+# Features
+
+`wasm` - If you need wasm support, this feature's for you!
 
 # Warning
 

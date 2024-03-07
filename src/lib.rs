@@ -13,6 +13,14 @@
 //! # Features
 //! `wasm` - If you need wasm support, this feature's for you!
 //!
+//! - Allows you to invisibly hide your secret inside regular text
+//! - Protect your secret with password and HMAC integrity
+//! - Encrypts your secret with AES-256-CTR
+//! - Uses 6 invisible unicode characters that work in many places such as Gmail, WhatsApp, Telegram, Facebook, and more!
+//! - Uses compression to minimize size of payload.
+//! - Wasm compatible
+//! - Fast🦀! Can hide the entire wikipedia source in ~201468 characters taking ~3.5ms in plaintext mode and ~7ms in encrypt mode
+//!
 //! # Warning
 //!
 //! This is currently under dev. Algorithm may be changed at any time, and previously encoded

@@ -76,7 +76,7 @@ pub fn encrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, 
 /// Requirements:
 /// - correct password
 /// - password.len > 0
-/// - integrity option must match what the data stream was encoded in
+/// - integrity option must match what the data stream was encrypted with
 /// - data is unaltered
 ///
 /// Note: It is possible in rare cases decrypted data might pass successfully (particularly when not using

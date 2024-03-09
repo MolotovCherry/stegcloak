@@ -28,6 +28,10 @@ This is incompatible with the original js stegcloak. But it can compile to wasm 
 
 `wasm` - If you need wasm support, this feature's for you!
 
+# Crates
+
+`stegcloak-wasm` - This is a pure binding crate to use this purely from javascript. If you want to use `stegcloak` in your wasm app, use the normal `stegcloak` crate with the `wasm` feature
+
 # Warning
 
 This is currently under dev. Algorithm may be changed at any time, and previously encoded

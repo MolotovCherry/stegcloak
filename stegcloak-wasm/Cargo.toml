@@ -1,0 +1,16 @@
+[package]
+name = "stegcloak-wasm"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Pure wasm module to use rust stegcloak straight from js"
+repository = "https://github.com/MolotovCherry/stegcloak"
+keywords = ["steganography", "text", "hide", "zwc", "wasm"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+stegcloak = { version = "0.1.4", features = ["wasm"] }
+wasm-bindgen = "0.2.92"

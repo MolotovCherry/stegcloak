@@ -1,0 +1,27 @@
+[package]
+name = "stegcloak-web"
+version = "0.1.0"
+edition = "2021"
+authors = ["Cherry"]
+
+[dependencies]
+leptos = { version = "0.6.9", features = ["csr"] }
+leptos_meta = { version = "0.6.9", features = ["csr"] }
+leptos_router = { version = "0.6.9", features = ["csr"] }
+console_log = "1.0.0"
+log = "0.4.21"
+console_error_panic_hook = "0.1.7"
+leptos-use = "0.10.4"
+js-sys = "0.3.69"
+stegcloak = "0.1.4"
+
+[dev-dependencies]
+wasm-bindgen = "0.2.92"
+wasm-bindgen-test = "0.3.42"
+web-sys = { version = "0.3.69", features = ["Document", "Window"] }
+
+[profile.release]
+opt-level = 'z'
+lto = true
+codegen-units = 1
+panic = "abort"

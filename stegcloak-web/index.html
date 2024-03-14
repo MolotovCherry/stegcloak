@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link data-trunk rel="copy-dir" href="public/image" data-target-path="static/image"/>
+
+    <link data-trunk rel="tailwind-css" href="tailwind.css" data-target-path="static/css" />
+    <link data-trunk rel="rust" data-wasm-opt="z" data-weak-refs data-reference-types data-target-path="static/wasm" />
+    <!-- 🧙🏻‍♂️ -->
+    <link rel="icon" href="/static/image/favicon.svg"/>
+
+    <script data-trunk src="public/js/init.js" data-target-path="static/js" defer />
+  </head>
+  <body>
+    <noscript>
+        <div class="h-screen flex items-center justify-center">
+            <article class="prose">
+                <h1>This site requires javascript</h1>
+            </article>
+        </div>
+    </noscript>
+  </body>
+</html>

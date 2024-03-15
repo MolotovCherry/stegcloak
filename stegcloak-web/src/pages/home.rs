@@ -1,4 +1,4 @@
-use leptos::html::{Input, Textarea};
+use leptos::html::{Form, Input, Textarea};
 use leptos::*;
 use leptos_use::{use_clipboard, use_permission, PermissionState, UseClipboardReturn};
 use web_sys::{HtmlTextAreaElement, SubmitEvent};
@@ -64,14 +64,15 @@ fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
 fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
     let UseClipboardReturn {
         is_supported,
-        text,
         copied,
         copy,
+        ..
     } = use_clipboard();
 
     let secret: NodeRef<Input> = create_node_ref();
     let password: NodeRef<Input> = create_node_ref();
     let message: NodeRef<Textarea> = create_node_ref();
+    let form: NodeRef<Form> = create_node_ref();
 
     let (cloaked_msg, set_cloaked_msg) = create_signal(String::new());
     let (encrypt, set_encrypt) = create_signal(true);
@@ -111,7 +112,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
     };
 
     view! {
-        <form on:submit=on_submit_hide class="mt-6 text-center" class:hidden=move || active_tab.get() != Tab::Hide>
+        <form on:submit=on_submit_hide id="hide-form" class="mt-6 text-center" class:hidden=move || active_tab.get() != Tab::Hide node_ref=form>
             <div>
                 <input
                     type="text"
@@ -185,7 +186,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                             disabled=move || permission_write.get() != PermissionState::Granted || !is_supported.get()
                             on:click=move |_| copy(&cloaked_msg.get_untracked())
                         >
-                            Copy
+                            "Copy"
                         </button>
                     </div>
                 </div>
@@ -198,7 +199,20 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
             </div>
 
             <div class="mt-6">
-                <input type="submit" class="btn btn-active btn-primary" value="Hide"/>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline mr-2"
+                    on:click=move |_| {
+                        form.get_untracked().unwrap().reset();
+                        // this is important, because default form state encrypt is true
+                        // if this is not set, then state will not sync
+                        set_encrypt.set(true);
+                    }
+                >
+                    "Clear"
+                </button>
+
+                <input type="submit" class="btn btn-sm btn-outline btn-primary" value="Hide"/>
             </div>
         </form>
     }

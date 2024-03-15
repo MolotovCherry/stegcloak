@@ -1,12 +1,35 @@
 use leptos::html::{Form, Input, Textarea};
 use leptos::*;
 use leptos_use::{use_clipboard, use_permission, PermissionState, UseClipboardReturn};
+use stegcloak::{crypto::DeEncryptError, StegError};
 use web_sys::{HtmlTextAreaElement, SubmitEvent};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum Tab {
     Hide,
     Reveal,
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+enum PwType {
+    Text,
+    Password,
+}
+
+impl PwType {
+    fn to_str(self) -> &'static str {
+        match self {
+            PwType::Text => "text",
+            PwType::Password => "password",
+        }
+    }
+
+    fn flip(self) -> Self {
+        match self {
+            PwType::Text => PwType::Password,
+            PwType::Password => PwType::Text,
+        }
+    }
 }
 
 /// Default Home Page
@@ -48,14 +71,202 @@ pub fn Home() -> impl IntoView {
 
 #[component]
 fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
-    let on_submit_reveal = move |evt: SubmitEvent| {
+    let UseClipboardReturn {
+        is_supported,
+        copied,
+        copy,
+        ..
+    } = use_clipboard();
+
+    let (pw_type, set_pw_type) = create_signal(PwType::Password);
+    let (secret, set_secret) = create_signal(String::new());
+
+    let password: NodeRef<Input> = create_node_ref();
+    let form: NodeRef<Form> = create_node_ref();
+    let message: NodeRef<Textarea> = create_node_ref();
+
+    let permission_write = use_permission("clipboard-write");
+
+    let on_submit = move |evt: SubmitEvent| {
         evt.prevent_default();
+
+        let message_target = message.get_untracked().unwrap();
+        let password_target = password.get_untracked().unwrap();
+
+        password_target.set_custom_validity("");
+        password_target.report_validity();
+        message_target.set_custom_validity("");
+        message_target.report_validity();
+
+        let password = password.get_untracked().unwrap().value();
+        let message = message.get_untracked().unwrap().value();
+
+        if message.contains(' ') {
+            message_target.set_custom_validity("");
+            message_target.report_validity();
+        } else {
+            // validation failed, so return here
+            message_target.set_custom_validity("Cover text requires 2 words minimum");
+            message_target.report_validity();
+            return;
+        }
+
+        if !password.is_empty() {
+            // try encrypted mode
+            let mut result = stegcloak::encrypt::reveal(&password, false, &message);
+
+            if let Err(StegError::DeEncryptError(DeEncryptError::IncorrectIntegrity)) = result {
+                result = stegcloak::encrypt::reveal(&password, true, &message);
+            }
+
+            if let Err(StegError::DeEncryptError(DeEncryptError::IncorrectPassword)) = result {
+                password_target.set_custom_validity("Incorrect password");
+                password_target.report_validity();
+                return;
+            }
+
+            if let Err(StegError::DeEncryptError(DeEncryptError::IntegrityError)) = result {
+                message_target.set_custom_validity("Message integrity check failed");
+                message_target.report_validity();
+                return;
+            }
+
+            if let Err(StegError::DeEncryptError(e)) = result {
+                password_target
+                    .set_custom_validity("This message is not encrypted, try removing this");
+                password_target.report_validity();
+                log::error!("Failed decryption: {e:?}");
+                return;
+            }
+
+            let Ok(data) = result else {
+                message_target.set_custom_validity("Message is corrupted");
+                message_target.report_validity();
+                log::error!("Failed decryption: {:?}", result.unwrap_err());
+                return;
+            };
+
+            set_secret.set(data);
+        } else {
+            // try plaintext mode
+            // todo: detect if it shoudl be encrypted and place error on password input
+            let data = match stegcloak::plaintext::reveal(message) {
+                Ok(data) => data,
+                Err(e) => match e {
+                    StegError::DeCompressError(e) => {
+                        message_target.set_custom_validity(
+                            "This is either encrypted or corrupted. Try inputting a password",
+                        );
+                        message_target.report_validity();
+                        log::error!("Failed plaintext decoding: {e:?}");
+                        return;
+                    }
+                    StegError::CodecError(e) => {
+                        message_target.set_custom_validity("Message is corrupted");
+                        message_target.report_validity();
+                        log::error!("Failed plaintext decoding: {e:?}");
+                        return;
+                    }
+                    _ => unreachable!(),
+                },
+            };
+
+            set_secret.set(data);
+        }
     };
 
     view! {
-        <form on:submit=on_submit_reveal class="mt-6 text-center" class:hidden=move || active_tab.get() != Tab::Reveal>
-            <input type="text" placeholder="Secret" class="input input-bordered input-primary max-w-30" />
-            <input type="text" placeholder="Password" class="input input-bordered input-primary max-w-30 ml-3" />
+        <form on:submit=on_submit class="mt-6 text-center w-full max-w-md" class:hidden={move || active_tab.get() != Tab::Reveal} node_ref=form>
+            <div>
+                <input
+                    type=move || pw_type.get().to_str()
+                    placeholder="Password"
+                    class="input input-bordered input-primary w-full"
+                    node_ref=password
+                    on:input=move |ev| {
+                        // erase the validity since it's annoying when it pops up every time you type
+                        let target: HtmlTextAreaElement = event_target(&ev);
+                        target.set_custom_validity("");
+                        target.report_validity();
+
+                        // this needs to be reset in case we got a previous error about using plaintext mode for encrypted stuff
+                        let message_target = message.get_untracked().unwrap();
+                        message_target.set_custom_validity("");
+                        message_target.report_validity();
+                    }
+                />
+
+                <div>
+                    <label class="cursor-pointer label justify-normal w-fit">
+                        <span class="label-text pr-2">"Show"</span>
+                        <input
+                            type="checkbox"
+                            class="checkbox checkbox-secondary checkbox-sm"
+                            on:click=move |_| {
+                                set_pw_type.set(pw_type.get_untracked().flip());
+                            }
+                        />
+                    </label>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <div class="text-left mb-2">"COVER MESSAGE"</div>
+                <textarea
+                    placeholder="This is a confidential message."
+                    class="textarea textarea-bordered textarea-md w-full max-w-lg"
+                    node_ref=message
+                    on:input=move |ev| {
+                        // erase the validity since it's annoying when it pops up every time you type
+                        let target: HtmlTextAreaElement = event_target(&ev);
+                        target.set_custom_validity("");
+                        target.report_validity();
+                    }
+                >
+                </textarea>
+            </div>
+
+            <div class="mt-6">
+                <div class="mb-2 w-full flex justify-between items-center">
+                    <div class="text-left">
+                        "SECRET"
+                    </div>
+                    <div class="text-right">
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline"
+                            class:btn-secondary=move || !copied.get()
+                            class:btn-success=move || copied.get()
+                            disabled=move || permission_write.get() != PermissionState::Granted || !is_supported.get()
+                            on:click=move |_| copy(&secret.get_untracked())
+                        >
+                            "Copy"
+                        </button>
+                    </div>
+                </div>
+
+                <textarea
+                    class="textarea textarea-bordered textarea-md w-full max-w-lg"
+                    prop:value=move || secret.get()
+                    readonly
+                ></textarea>
+            </div>
+
+            <div class="mt-6">
+                <button
+                    type="button"
+                    class="btn btn-sm btn-outline mr-2"
+                    on:click=move |_| form.get_untracked().unwrap().reset()
+                >
+                    "Clear"
+                </button>
+
+                <input
+                    type="submit"
+                    class="btn btn-sm btn-outline btn-primary"
+                    value="Reveal"
+                />
+            </div>
         </form>
     }
 }
@@ -74,13 +285,14 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
     let message: NodeRef<Textarea> = create_node_ref();
     let form: NodeRef<Form> = create_node_ref();
 
+    let (pw_type, set_pw_type) = create_signal(PwType::Password);
     let (cloaked_msg, set_cloaked_msg) = create_signal(String::new());
     let (encrypt, set_encrypt) = create_signal(true);
     let (hmac, set_hmac) = create_signal(false);
 
     let permission_write = use_permission("clipboard-write");
 
-    let on_submit_hide = move |evt: SubmitEvent| {
+    let on_submit = move |evt: SubmitEvent| {
         evt.prevent_default();
 
         let message_target = message.get_untracked().unwrap();
@@ -112,8 +324,8 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
     };
 
     view! {
-        <form on:submit=on_submit_hide id="hide-form" class="mt-6 text-center" class:hidden=move || active_tab.get() != Tab::Hide node_ref=form>
-            <div>
+        <form on:submit=on_submit class="mt-6 text-center w-full max-w-md" class:hidden={move || active_tab.get() != Tab::Hide} node_ref=form>
+            <div class="grid grid-cols-2 gap-4 gap-y-0">
                 <input
                     type="text"
                     placeholder="Secret"
@@ -124,40 +336,54 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                 />
 
                 <input
-                    type="text"
+                    type=move || pw_type.get().to_str()
                     placeholder="Password"
-                    class="input input-bordered input-primary max-w-30 ml-3"
+                    class="input input-bordered input-primary max-w-30"
                     node_ref=password
                     min-length=1
                     required=move || encrypt.get()
                     disabled=move || !encrypt.get()
                 />
-            </div>
 
-            <div class="form-control flex flex-row">
-                <label class="cursor-pointer label justify-normal w-fit">
-                    <span class="label-text pr-2">"ENCRYPT"</span>
-                    <input
-                        type="checkbox"
-                        checked
-                        on:click=move |ev| set_encrypt.set(event_target_checked(&ev))
-                        class="checkbox checkbox-secondary checkbox-sm"
-                    />
-                </label>
+                <div class="flex flex-row items-center">
+                    <label class="cursor-pointer label justify-normal w-fit">
+                        <span class="label-text pr-2">"ENCRYPT"</span>
+                        <input
+                            type="checkbox"
+                            checked
+                            on:click=move |ev| set_encrypt.set(event_target_checked(&ev))
+                            class="checkbox checkbox-secondary checkbox-sm"
+                        />
+                    </label>
 
-                <label class="cursor-pointer label justify-normal w-fit">
-                    <span class="label-text pr-2">"HMAC"</span>
-                    <input
-                        type="checkbox"
-                        class="checkbox checkbox-secondary checkbox-sm"
-                        disabled=move || !encrypt.get()
-                        on:click=move |ev| set_hmac.set(event_target_checked(&ev))
-                    />
-                </label>
+                    <label class="cursor-pointer label justify-normal w-fit">
+                        <span class="label-text pr-2">"HMAC"</span>
+                        <input
+                            type="checkbox"
+                            class="checkbox checkbox-secondary checkbox-sm"
+                            disabled=move || !encrypt.get()
+                            on:click=move |ev| set_hmac.set(event_target_checked(&ev))
+                        />
+                    </label>
+                </div>
+
+                <div>
+                    <label class="cursor-pointer label justify-normal w-fit">
+                        <span class="label-text pr-2">"Show"</span>
+                        <input
+                            type="checkbox"
+                            class="checkbox checkbox-secondary checkbox-sm"
+                            disabled=move || !encrypt.get()
+                            on:click=move |_| {
+                                set_pw_type.set(pw_type.get_untracked().flip());
+                            }
+                        />
+                    </label>
+                </div>
             </div>
 
             <div class="mt-6">
-                <div class="text-left mb-2">"MESSAGE"</div>
+                <div class="text-left mb-2">"COVER MESSAGE"</div>
                 <textarea
                     placeholder="This is a confidential message."
                     class="textarea textarea-bordered textarea-md w-full max-w-lg"

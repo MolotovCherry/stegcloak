@@ -47,7 +47,6 @@ jobs:
           npm install
 
       - name: Build
-        working-directory: rust
         run: |
             cd stegcloak-web
             trunk build --release

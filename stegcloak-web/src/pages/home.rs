@@ -107,7 +107,7 @@ pub fn Home() -> impl IntoView {
                         node_ref=password
                         min-length=1
                         required=move|| encrypt.get()
-                        prop:disabled=move || !encrypt.get()
+                        disabled=move || !encrypt.get()
                     />
                 </div>
 
@@ -156,6 +156,7 @@ pub fn Home() -> impl IntoView {
                         </div>
                         <div class="text-right">
                             <button
+                                type="button"
                                 class="btn btn-sm btn-outline btn-secondary"
                                 prop:disabled=move || permission_write.get() != PermissionState::Granted || !is_supported.get()
                                 on:click=move |_| copy(&cloaked_msg.get_untracked())

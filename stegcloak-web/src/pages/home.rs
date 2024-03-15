@@ -149,7 +149,6 @@ fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
             set_secret.set(data);
         } else {
             // try plaintext mode
-            // todo: detect if it shoudl be encrypted and place error on password input
             let data = match stegcloak::plaintext::reveal(message) {
                 Ok(data) => data,
                 Err(e) => match e {
@@ -246,7 +245,7 @@ fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
                 </div>
 
                 <textarea
-                    class="textarea textarea-bordered textarea-md w-full max-w-lg"
+                    class="textarea textarea-bordered textarea-md w-full max-w-lg textarea-accent"
                     prop:value=move || secret.get()
                     readonly
                 ></textarea>
@@ -418,7 +417,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                 </div>
 
                 <textarea
-                    class="textarea textarea-bordered textarea-md w-full max-w-lg"
+                    class="textarea textarea-bordered textarea-md w-full max-w-lg textarea-accent"
                     prop:value=move || cloaked_msg.get()
                     readonly
                 ></textarea>

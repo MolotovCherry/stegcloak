@@ -87,39 +87,26 @@ pub fn PageBase(children: ChildrenFn) -> impl IntoView {
     };
 
     view! {
-        <div class="flex flex-col items-center justify-center min-h-screen">
+        <div class="flex flex-col items-center justify-center">
             <div class="w-full md:w-3/4 lg:w-2/3 xl:w-2/3 max-w-3xl drop-shadow-lg md:my-8 sm:my-0 bg-base-300 rounded flex flex-grow flex-col">
                 // Navbar
                 <Navbar/>
 
                 // Main content
-                <main class="container p-4 text-base-content flex-grow flex">
-                    // let this div grow to the bounds, in order to give big space to inner content
-                    // without making inner content grow (which skews it)
-                    //
-                    // use relative then absolute to give full width + height to children
-                    // https://stackoverflow.com/a/15389545/9423933
-                    <div class="flex-grow flex flex-col relative">
-                        <div id="page" class="absolute h-full w-full">
-                            <ErrorBoundary fallback>
-                                {move || {
-                                    if let Some(panic) = panic.get() {
-                                        // display panic page
-                                        panic_impl(panic).into_view()
-                                    } else {
-                                        // Regular page content
-                                        view! {
-                                            {children()}
-                                        }.into_view()
-                                    }
-                                }}
-                            </ErrorBoundary>
-                        </div>
-                    </div>
-
-                    // forces the container to keep its height
-                    // used by init.js
-                    <div id="size-fixer" class="invisible"></div>
+                <main class="container p-4 text-base-content">
+                    <ErrorBoundary fallback>
+                        {move || {
+                            if let Some(panic) = panic.get() {
+                                // display panic page
+                                panic_impl(panic).into_view()
+                            } else {
+                                // Regular page content
+                                view! {
+                                    {children()}
+                                }.into_view()
+                            }
+                        }}
+                    </ErrorBoundary>
                 </main>
 
                 // Footer

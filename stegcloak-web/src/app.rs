@@ -36,6 +36,7 @@ pub fn App() -> impl IntoView {
     provide_context(set_theme);
 
     let base = get_base_url();
+    log::info!("{base}");
 
     view! {
         <Html lang="en"/>

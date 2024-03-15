@@ -88,7 +88,7 @@ pub fn PageBase(children: ChildrenFn) -> impl IntoView {
 
     view! {
         <div class="flex flex-col items-center justify-center">
-            <div class="w-full md:w-3/4 lg:w-2/3 xl:w-2/3 max-w-3xl drop-shadow-lg md:my-8 sm:my-0 bg-base-300 rounded flex flex-grow flex-col">
+            <div class="drop-shadow-lg md:my-8 sm:my-0 bg-base-300 rounded w-full md:w-[768px]">
                 // Navbar
                 <Navbar/>
 

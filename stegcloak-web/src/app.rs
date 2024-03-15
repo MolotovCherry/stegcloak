@@ -8,6 +8,7 @@ use leptos_use::{
 
 use crate::{
     components::page_base::PageBase,
+    get_base_url,
     pages::{home::Home, not_found::NotFound},
 };
 
@@ -34,6 +35,8 @@ pub fn App() -> impl IntoView {
     provide_context(get_theme);
     provide_context(set_theme);
 
+    let base = get_base_url();
+
     view! {
         <Html lang="en"/>
 
@@ -44,10 +47,10 @@ pub fn App() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
         <PageBase>
-            <Router>
+            <Router clone:base>
                 <Routes>
-                    <Route path="/" view=Home/>
-                    <Route path="/*" view=NotFound/>
+                    <Route path=base.clone() view=Home/>
+                    <Route path=format!("{base}*") view=NotFound/>
                 </Routes>
             </Router>
         </PageBase>

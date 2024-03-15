@@ -6,9 +6,11 @@
     <link data-trunk rel="tailwind-css" href="tailwind.css" data-target-path="static/css" />
     <link data-trunk rel="rust" data-wasm-opt="z" data-weak-refs data-reference-types data-target-path="static/wasm" />
     <!-- 🧙🏻‍♂️ -->
-    <link rel="icon" href="/static/image/favicon.svg"/>
+    <link data-trunk rel="icon" href="public/image/favicon.svg" data-target-path="static/image"/>
 
     <script data-trunk src="public/js/init.js" data-target-path="static/js" defer />
+
+    <base data-trunk-public-url/>
   </head>
   <body>
     <noscript>

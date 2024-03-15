@@ -6,7 +6,7 @@ use leptos::*;
 use crate::{
     app::{GetTheme, SetTheme},
     components::mockup_code::{MockupCode, Prefix},
-    Panic,
+    get_base_url, Panic,
 };
 
 #[component]
@@ -206,6 +206,8 @@ fn Footer() -> impl IntoView {
         _ => unreachable!(),
     };
 
+    let base = get_base_url();
+
     view! {
         <footer class="footer items-center p-4 bg-neutral text-neutral-content rounded-b">
             <aside class="items-center grid-flow-col">
@@ -217,11 +219,11 @@ fn Footer() -> impl IntoView {
                     {move || {
                         if is_footer_dark_mode() {
                             view! {
-                                <img src="/static/image/github-mark-white.svg" height="24" width="24" />
+                                <img src=format!("{base}static/image/github-mark-white.svg") height="24" width="24" />
                             }
                         } else {
                             view! {
-                                <img src="/static/image/github-mark.svg" height="24" width="24" />
+                                <img src=format!("{base}static/image/github-mark.svg") height="24" width="24" />
                             }
                         }
                     }}

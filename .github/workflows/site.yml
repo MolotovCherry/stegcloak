@@ -49,7 +49,7 @@ jobs:
       - name: Build
         run: |
             cd stegcloak-web
-            trunk build --release
+            trunk build --release --public-url=/stegcloak/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

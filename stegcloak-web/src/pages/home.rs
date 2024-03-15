@@ -128,7 +128,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                     class="input input-bordered input-primary max-w-30 ml-3"
                     node_ref=password
                     min-length=1
-                    required=move|| encrypt.get()
+                    required=move || encrypt.get()
                     disabled=move || !encrypt.get()
                 />
             </div>
@@ -179,7 +179,9 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                     <div class="text-right">
                         <button
                             type="button"
-                            class="btn btn-sm btn-outline btn-secondary"
+                            class="btn btn-sm btn-outline"
+                            class:btn-secondary=move || !copied.get()
+                            class:btn-success=move || copied.get()
                             disabled=move || permission_write.get() != PermissionState::Granted || !is_supported.get()
                             on:click=move |_| copy(&cloaked_msg.get_untracked())
                         >

@@ -98,18 +98,17 @@ pub mod encrypt {
     ///
     /// # Examples
     /// ```rust
-    ///     stegcloak::encrypt::reveal("mypassword", false, "cover text"); // -> "mysecret"
+    ///     stegcloak::encrypt::reveal("mypassword", "cover text"); // -> "mysecret"
     /// ```
     ///
     pub fn reveal(
         password: impl AsRef<str>,
-        integrity: bool,
         message: impl AsRef<str>,
     ) -> Result<String, StegError> {
         let password = password.as_ref();
         let message = message.as_ref();
 
-        super::_reveal(true, integrity, password, message)
+        super::_reveal(true, password, message)
     }
 }
 
@@ -153,7 +152,7 @@ pub mod plaintext {
     pub fn reveal(message: impl AsRef<str>) -> Result<String, StegError> {
         let message = message.as_ref();
 
-        super::_reveal(false, false, "", message)
+        super::_reveal(false, "", message)
     }
 }
 
@@ -184,19 +183,14 @@ fn _hide(
     Ok(message)
 }
 
-fn _reveal(
-    encrypt: bool,
-    integrity: bool,
-    password: &str,
-    message: &str,
-) -> Result<String, StegError> {
+fn _reveal(encrypt: bool, password: &str, message: &str) -> Result<String, StegError> {
     if !message.contains(' ') {
         return Err(StegError::SpaceRequired);
     }
 
     let decoded = codec::decode(message)?;
     let data = if encrypt {
-        crypto::decrypt(password, &decoded, integrity)?
+        crypto::decrypt(password, &decoded)?
     } else {
         decoded
     };

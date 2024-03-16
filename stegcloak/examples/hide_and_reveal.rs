@@ -9,11 +9,11 @@ fn main() {
 
     // encrypt. You can skip the integrity check
     let hidden = encrypt::hide("mysecret", "password", false, "cover text").unwrap();
-    let secret = encrypt::reveal("password", false, hidden).unwrap();
+    let secret = encrypt::reveal("password", hidden).unwrap();
     assert_eq!("mysecret", secret);
 
     // encrypt. But with the data integrity check for maximum security
     let hidden = encrypt::hide("mysecret", "password", true, "cover text").unwrap();
-    let secret = encrypt::reveal("password", true, hidden).unwrap();
+    let secret = encrypt::reveal("password", hidden).unwrap();
     assert_eq!("mysecret", secret);
 }

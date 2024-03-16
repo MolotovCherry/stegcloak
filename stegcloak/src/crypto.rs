@@ -25,19 +25,6 @@ struct Payload {
     data: Vec<u8>,
 }
 
-/// Check if stream was encrypted with integrity flag set
-///
-/// If stream is invalid, returns false
-pub fn check_integrity(data: &[u8]) -> bool {
-    let des = bincode::decode_from_slice::<Payload, _>(data, bincode::config::standard());
-
-    if let Ok((payload, _)) = des {
-        payload.integrity
-    } else {
-        false
-    }
-}
-
 /// Encrypt a binary stream
 ///
 /// Requirements:
@@ -94,18 +81,13 @@ pub fn encrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, 
 ///
 /// Note: It is possible in rare cases decrypted data might pass successfully (particularly when not using
 ///       the integrity check). And in such a case the resulting returned data _may_ be corrupt.
-pub fn decrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, DeEncryptError> {
+pub fn decrypt(password: &str, data: &[u8]) -> Result<Vec<u8>, DeEncryptError> {
     if password.is_empty() {
         return Err(DeEncryptError::PasswordTooShort);
     }
 
     let (mut payload, _) =
         bincode::decode_from_slice::<Payload, _>(data, bincode::config::standard())?;
-
-    // Incorrect param specified
-    if integrity != payload.integrity {
-        return Err(DeEncryptError::IncorrectIntegrity);
-    }
 
     // Extract salt
     let salt = SaltString::from_b64(std::str::from_utf8(&payload.salt)?)?;
@@ -123,7 +105,7 @@ pub fn decrypt(password: &str, data: &[u8], integrity: bool) -> Result<Vec<u8>, 
         .verify_slice(&payload.password_hmac)
         .map_err(|_| DeEncryptError::IncorrectPassword)?;
 
-    if integrity {
+    if payload.integrity {
         // Verify hmac
         let mut mac = HmacSha256::new_from_slice(key)?;
         mac.update(&payload.data);
@@ -173,7 +155,7 @@ mod tests {
     #[test]
     fn test_full_pass() {
         let data = encrypt("123", &[1, 2, 3, 4], false).unwrap();
-        let data = decrypt("123", &data, false).unwrap();
+        let data = decrypt("123", &data).unwrap();
 
         assert_eq!(data, &[1, 2, 3, 4]);
     }
@@ -181,7 +163,7 @@ mod tests {
     #[test]
     fn test_integrity() {
         let data = encrypt("123", &[1, 2, 3, 4], true).unwrap();
-        let data = decrypt("123", &data, true).unwrap();
+        let data = decrypt("123", &data).unwrap();
 
         assert_eq!(data, &[1, 2, 3, 4]);
     }
@@ -190,7 +172,7 @@ mod tests {
     fn test_decrypt_integrity_broken() {
         let mut data = encrypt("123", &[1, 2, 3, 4], true).unwrap();
         data.pop();
-        let data = decrypt("123", &data, true);
+        let data = decrypt("123", &data);
 
         assert!(data.is_err());
     }
@@ -198,7 +180,7 @@ mod tests {
     #[test]
     fn test_decrypt_wrong_password() {
         let data = encrypt("123", &[1, 2, 3, 4], true).unwrap();
-        let data = decrypt("1234", &data, true);
+        let data = decrypt("1234", &data);
 
         assert!(data.is_err());
     }
@@ -206,12 +188,12 @@ mod tests {
     #[test]
     fn test_decrypt_wrong_integrity_flag() {
         let data = encrypt("123", &[1, 2, 3, 4], true).unwrap();
-        let data = decrypt("1234", &data, false);
+        let data = decrypt("1234", &data);
 
         assert!(data.is_err());
 
         let data = encrypt("123", &[1, 2, 3, 4], false).unwrap();
-        let data = decrypt("1234", &data, true);
+        let data = decrypt("1234", &data);
 
         assert!(data.is_err());
     }
@@ -223,6 +205,6 @@ mod tests {
 
     #[test]
     fn test_decrypt_no_pass() {
-        assert!(decrypt("", &[1, 2, 3, 4], false).is_err());
+        assert!(decrypt("", &[1, 2, 3, 4]).is_err());
     }
 }

@@ -113,11 +113,7 @@ fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
 
         if !password.is_empty() {
             // try encrypted mode
-            let mut result = stegcloak::encrypt::reveal(&password, false, &message);
-
-            if let Err(StegError::DeEncryptError(DeEncryptError::IncorrectIntegrity)) = result {
-                result = stegcloak::encrypt::reveal(&password, true, &message);
-            }
+            let result = stegcloak::encrypt::reveal(&password, &message);
 
             if let Err(StegError::DeEncryptError(DeEncryptError::IncorrectPassword)) = result {
                 password_target.set_custom_validity("Incorrect password");

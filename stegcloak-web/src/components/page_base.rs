@@ -89,6 +89,8 @@ pub fn PageBase(children: ChildrenFn) -> impl IntoView {
     view! {
         <div
             class="flex flex-col items-center justify-center"
+            // safari click fix
+            // https://github.com/leptos-rs/leptos/issues/2381
             // https://stackoverflow.com/questions/24077725/mobile-safari-sometimes-does-not-trigger-the-click-event/39712411#39712411
             onclick="void(0);"
         >

@@ -35,8 +35,12 @@ pub fn App() -> impl IntoView {
     provide_context(get_theme);
     provide_context(set_theme);
 
-    let base = get_base_url();
-    log::info!("{base}");
+    let base: &'static str = get_base_url().leak();
+    let base: &'static str = base
+        .strip_prefix('/')
+        .unwrap_or(base)
+        .strip_suffix('/')
+        .unwrap_or(base);
 
     view! {
         <Html lang="en"/>
@@ -48,10 +52,10 @@ pub fn App() -> impl IntoView {
         <Meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
         <PageBase>
-            <Router clone:base>
-                <Routes>
-                    <Route path=base.clone() view=Home/>
-                    <Route path=format!("{base}*") view=NotFound/>
+            <Router base>
+                <Routes base=base.to_owned()>
+                    <Route path="/" view=Home/>
+                    <Route path="/*" view=NotFound/>
                 </Routes>
             </Router>
         </PageBase>

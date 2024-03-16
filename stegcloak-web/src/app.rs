@@ -8,7 +8,6 @@ use leptos_use::{
 
 use crate::{
     components::page_base::PageBase,
-    get_base_url,
     pages::{home::Home, not_found::NotFound},
 };
 

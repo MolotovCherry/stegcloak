@@ -12,6 +12,8 @@ Inspired by the original javascript [stegcloak](https://github.com/KuroLabs/steg
 This is incompatible with the original js stegcloak. But it can compile to wasm with the
 `wasm` feature.
 
+Also available on the web @ https://molotovcherry.github.io/stegcloak/
+
 # Features
 
 - Allows you to invisibly hide your secret inside regular text

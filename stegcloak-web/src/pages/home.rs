@@ -40,7 +40,7 @@ pub fn Home() -> impl IntoView {
     view! {
         <div class="w-full h-full flex flex-col justify-center items-center content px-6">
             // selector
-            <div role="tablist" class="tabs tabs-boxed max-w-sm mx-auto">
+            <div role="tablist" class="tabs tabs-boxed w-full max-w-md md:max-w-sm md:w-auto md:mx-auto">
                 <a
                     role="tab"
                     on:click=move |_| set_active_tab.set(Tab::Hide)
@@ -320,7 +320,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
 
     view! {
         <form on:submit=on_submit class="mt-6 text-center w-full max-w-md" class:hidden={move || active_tab.get() != Tab::Hide} node_ref=form>
-            <div class="grid grid-cols-2 gap-4 gap-y-0">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-0">
                 <input
                     type="text"
                     placeholder="Secret"
@@ -333,7 +333,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                 <input
                     type=move || pw_type.get().to_str()
                     placeholder="Password"
-                    class="input input-bordered input-primary max-w-30"
+                    class="input input-bordered input-primary max-w-30 my-4 md:my-0"
                     node_ref=password
                     min-length=1
                     required=move || encrypt.get()
@@ -360,9 +360,23 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                             on:click=move |ev| set_hmac.set(event_target_checked(&ev))
                         />
                     </label>
+
+                    // display in mobile mode, hide in md+
+                    <label class="cursor-pointer label justify-normal w-fit flex md:hidden">
+                        <span class="label-text pr-2">"Show"</span>
+                        <input
+                            type="checkbox"
+                            class="checkbox checkbox-secondary checkbox-sm"
+                            disabled=move || !encrypt.get()
+                            on:click=move |_| {
+                                set_pw_type.set(pw_type.get_untracked().flip());
+                            }
+                        />
+                    </label>
                 </div>
 
-                <div>
+                // hide in mobile mode, display in md+
+                <div class="hidden md:block">
                     <label class="cursor-pointer label justify-normal w-fit">
                         <span class="label-text pr-2">"Show"</span>
                         <input

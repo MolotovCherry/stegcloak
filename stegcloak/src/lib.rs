@@ -92,8 +92,6 @@ pub mod encrypt {
     /// # Arguments
     ///
     /// * `password` - The password to decrypt the secret with
-    /// * `integrity` - Verify integrity; this must be `true` if the message was created with integrity option.
-    ///                 This must be `false` if message was created without integrity option
     /// * `message` - The visible text everybody else sees
     ///
     /// # Examples

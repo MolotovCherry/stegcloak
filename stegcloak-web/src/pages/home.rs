@@ -6,7 +6,7 @@ use web_sys::{HtmlTextAreaElement, SubmitEvent};
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 enum Tab {
-    Hide,
+    Cloak,
     Reveal,
 }
 
@@ -35,7 +35,7 @@ impl PwType {
 /// Default Home Page
 #[component]
 pub fn Home() -> impl IntoView {
-    let (active_tab, set_active_tab) = create_signal(Tab::Hide);
+    let (active_tab, set_active_tab) = create_signal(Tab::Cloak);
 
     view! {
         <div class="w-full h-full flex flex-col justify-center items-center content px-6">
@@ -43,11 +43,11 @@ pub fn Home() -> impl IntoView {
             <div role="tablist" class="tabs tabs-boxed w-full max-w-md md:max-w-sm md:w-auto md:mx-auto">
                 <a
                     role="tab"
-                    on:click=move |_| set_active_tab.set(Tab::Hide)
+                    on:click=move |_| set_active_tab.set(Tab::Cloak)
                     class="tab"
-                    class:tab-active=move || active_tab.get() == Tab::Hide
+                    class:tab-active=move || active_tab.get() == Tab::Cloak
                 >
-                    "Hide"
+                    "Cloak"
                 </a>
 
                 <a
@@ -61,7 +61,7 @@ pub fn Home() -> impl IntoView {
             </div>
 
             // secret password buttons
-            <Hide active_tab />
+            <Cloak active_tab />
 
             // reveal
             <Reveal active_tab />
@@ -267,7 +267,7 @@ fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
 }
 
 #[component]
-fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
+fn Cloak(active_tab: ReadSignal<Tab>) -> impl IntoView {
     let UseClipboardReturn {
         is_supported,
         copied,
@@ -319,7 +319,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
     };
 
     view! {
-        <form on:submit=on_submit class="mt-6 text-center w-full max-w-md" class:hidden={move || active_tab.get() != Tab::Hide} node_ref=form>
+        <form on:submit=on_submit class="mt-6 text-center w-full max-w-md" class:hidden={move || active_tab.get() != Tab::Cloak} node_ref=form>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 gap-y-0">
                 <input
                     type="text"
@@ -447,7 +447,7 @@ fn Hide(active_tab: ReadSignal<Tab>) -> impl IntoView {
                     "Clear"
                 </button>
 
-                <input type="submit" class="btn btn-sm btn-outline btn-primary" value="Hide"/>
+                <input type="submit" class="btn btn-sm btn-outline btn-primary" value="Cloak"/>
             </div>
         </form>
     }

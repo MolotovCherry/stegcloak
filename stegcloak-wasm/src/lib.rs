@@ -23,6 +23,6 @@ pub fn encrypt_hide(
 }
 
 #[wasm_bindgen]
-pub fn encrypt_reveal(password: &str, integrity: bool, message: &str) -> Result<String, JsError> {
-    Ok(encrypt::reveal(password, integrity, message)?)
+pub fn encrypt_reveal(password: &str, message: &str) -> Result<String, JsError> {
+    Ok(encrypt::reveal(password, message)?)
 }

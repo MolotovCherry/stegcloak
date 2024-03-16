@@ -1625,6 +1625,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "stegcloak"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ce3bd423a0834b944277f46ff1bb6d9c4952042a8efc66f0e35396cc94a2c294"
+dependencies = [
+ "aes",
+ "aho-corasick",
+ "bincode",
+ "cbc",
+ "ctr",
+ "flate2",
+ "getrandom",
+ "hmac",
+ "itertools",
+ "pbkdf2",
+ "rand",
+ "sha2",
+ "thiserror",
+]
+
+[[package]]
+name = "stegcloak-wasm"
+version = "0.1.0"
+dependencies = [
+ "stegcloak 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "stegcloak-web"
 version = "0.1.0"
 dependencies = [
@@ -1636,7 +1665,7 @@ dependencies = [
  "leptos_meta",
  "leptos_router",
  "log",
- "stegcloak",
+ "stegcloak 0.1.6",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "web-sys",

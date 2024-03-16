@@ -12,5 +12,5 @@ categories = ["encoding"]
 crate-type = ["cdylib"]
 
 [dependencies]
-stegcloak = { version = "0.1.4", features = ["wasm"] }
+stegcloak = { version = "0.1.6", features = ["wasm"] }
 wasm-bindgen = "0.2.92"

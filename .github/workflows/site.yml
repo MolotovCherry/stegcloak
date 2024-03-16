@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Rust cache
         uses: Swatinem/rust-cache@v2
@@ -32,7 +32,7 @@ jobs:
         run: rustup target add wasm32-unknown-unknown
 
       - name: Install trunk
-        uses: baptiste0928/cargo-install@v2
+        uses: baptiste0928/cargo-install@v3
         with:
           crate: trunk
 

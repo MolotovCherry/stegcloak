@@ -284,6 +284,7 @@ fn Cloak(active_tab: ReadSignal<Tab>) -> impl IntoView {
     let (cloaked_msg, set_cloaked_msg) = create_signal(String::new());
     let (encrypt, set_encrypt) = create_signal(true);
     let (hmac, set_hmac) = create_signal(false);
+    let (show, set_show) = create_signal(false);
 
     let permission_write = use_permission("clipboard-write");
 
@@ -367,9 +368,11 @@ fn Cloak(active_tab: ReadSignal<Tab>) -> impl IntoView {
                         <input
                             type="checkbox"
                             class="checkbox checkbox-secondary checkbox-sm"
+                            prop:checked=move || show.get()
                             disabled=move || !encrypt.get()
-                            on:click=move |_| {
+                            on:click=move |ev| {
                                 set_pw_type.set(pw_type.get_untracked().flip());
+                                set_show.set(event_target_checked(&ev));
                             }
                         />
                     </label>
@@ -382,9 +385,11 @@ fn Cloak(active_tab: ReadSignal<Tab>) -> impl IntoView {
                         <input
                             type="checkbox"
                             class="checkbox checkbox-secondary checkbox-sm"
+                            prop:checked=move || show.get()
                             disabled=move || !encrypt.get()
-                            on:click=move |_| {
+                            on:click=move |ev| {
                                 set_pw_type.set(pw_type.get_untracked().flip());
+                                set_show.set(event_target_checked(&ev));
                             }
                         />
                     </label>

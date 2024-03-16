@@ -87,7 +87,11 @@ pub fn PageBase(children: ChildrenFn) -> impl IntoView {
     };
 
     view! {
-        <div class="flex flex-col items-center justify-center">
+        <div
+            class="flex flex-col items-center justify-center"
+            // https://stackoverflow.com/questions/24077725/mobile-safari-sometimes-does-not-trigger-the-click-event/39712411#39712411
+            onclick="void(0);"
+        >
             <div class="drop-shadow-lg md:my-8 sm:my-0 bg-base-300 rounded w-full md:w-[768px]">
                 // Navbar
                 <Navbar/>

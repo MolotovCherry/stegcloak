@@ -173,7 +173,7 @@ fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
 
     view! {
         <form on:submit=on_submit class="mt-6 text-center w-full max-w-md" class:hidden={move || active_tab.get() != Tab::Reveal} node_ref=form>
-            <label class="input input-bordered input-primary flex items-center gap-2">
+            <label class="input input-bordered input-primary flex items-center gap-2 pr-0">
                 // password icon
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-none"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" /></svg>
 
@@ -196,7 +196,7 @@ fn Reveal(active_tab: ReadSignal<Tab>) -> impl IntoView {
                 />
 
                 <div
-                    class="h-full flex items-center cursor-pointer"
+                    class="h-full flex items-center cursor-pointer pr-4"
                     on:click=move |_| {
                         set_pw_type.set(pw_type.get_untracked().flip());
                         set_show.set(!show.get_untracked());
@@ -350,7 +350,7 @@ fn Cloak(active_tab: ReadSignal<Tab>) -> impl IntoView {
                 </label>
 
                 // password
-                <label class="input input-bordered input-primary flex items-center max-w-30 gap-2 my-4 md:my-0" disabled=move || !encrypt.get()>
+                <label class="input input-bordered input-primary flex items-center max-w-30 gap-2 my-4 md:my-0 pr-0" disabled=move || !encrypt.get()>
                     // password icon
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 flex-none"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" /></svg>
 
@@ -365,7 +365,7 @@ fn Cloak(active_tab: ReadSignal<Tab>) -> impl IntoView {
                     />
 
                     <div
-                        class="h-full flex items-center"
+                        class="h-full flex items-center pr-4"
                         class:cursor-pointer=move || encrypt.get()
                         on:click=move |_| {
                             // disable click if encrypt not enabled

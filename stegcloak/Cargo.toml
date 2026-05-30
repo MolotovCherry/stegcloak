@@ -14,7 +14,7 @@ wasm = ["getrandom"]
 [dependencies]
 thiserror = "1.0.57"
 aes = "0.8.4"
-rand = { version = "0.8.5", features = ["getrandom"] }
+rand = { version = "0.8.6", features = ["getrandom"] }
 flate2 = "1.0.28"
 pbkdf2 = { version = "0.12.2", features = ["simple"] }
 sha2 = "0.10.8"
